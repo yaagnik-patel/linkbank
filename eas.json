@@ -10,14 +10,14 @@
     },
     "preview": {
       "distribution": "internal",
-      "install": {
-        "cmd": "npm install --legacy-peer-deps"
+      "env": {
+        "npm_config_legacy_peer_deps": "true"
       }
     },
     "production": {
       "autoIncrement": true,
-      "install": {
-        "cmd": "npm install --legacy-peer-deps"
+      "env": {
+        "npm_config_legacy_peer_deps": "true"
       }
     }
   },
