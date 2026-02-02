@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "LinkBank",
-    "slug": "LinkBank",
+    "slug": "linkbank",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/SKicon.png",
@@ -19,7 +19,7 @@
     },
     "android": {
       "package": "com.linkbank.app",
-      "googleServicesFile": "./google-services.json", 
+      "googleServicesFile": "./google-services.json",
       "edgeToEdgeEnabled": true,
       "adaptiveIcon": {
         "foregroundImage": "./assets/SKicon.png",
@@ -31,7 +31,7 @@
     },
     "extra": {
       "eas": {
-        "projectId": "af275aa6-66af-47fb-9f8b-aa0f17f63ac1"
+        "projectId": "d194410c-1aee-4550-890f-3af9cf1d1aac"
       }
     },
     "owner": "yaaggnik",
@@ -44,7 +44,7 @@
         "expo-build-properties",
         {
           "android": {
-            "kotlinVersion": "1.9.0"
+            "kotlinVersion": "1.8.22"
           }
         }
       ]
