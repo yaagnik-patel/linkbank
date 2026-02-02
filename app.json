@@ -36,18 +36,18 @@
     },
     "owner": "yaaggnik",
     "plugins": [
-      "expo-notifications",
-      "expo-secure-store",
-      "@react-native-firebase/app",
-      "@react-native-firebase/auth",
-      [
-        "expo-build-properties",
-        {
-          "android": {
-            "kotlinVersion": "1.8.22"
-          }
-        }
-      ]
-    ]
+  "expo-notifications",
+  "expo-secure-store",
+  "@react-native-firebase/app",
+  "@react-native-firebase/auth",
+  [
+    "expo-build-properties",
+    {
+      "android": {
+        "kotlinVersion": "2.0.20" 
+      }
+    }
+  ]
+]
   }
 }

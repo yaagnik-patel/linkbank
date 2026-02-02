@@ -1,8 +1,7 @@
 import { AppRegistry, Platform } from 'react-native';
 import App from './App';
 
-// ✅ Manually match the name in app.json: "SaralKhata"
-const appName = 'main';
+const appName = 'LinkBank'; // Matching app.json "name"
 
 if (Platform.OS === 'web') {
   require('./global.css');
