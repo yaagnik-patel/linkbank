@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "323673816247",
+    "project_id": "link-bank24",
+    "storage_bucket": "link-bank24.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:323673816247:android:335f41a6b36d3bf541e132",
+        "android_client_info": {
+          "package_name": "com.linkbank.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "323673816247-uk9rig6dg8q7padcda926emln2sh4h59.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDVfrdbYMjI8HmaXUJo_DaJ7mUrRcLMge8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "323673816247-uk9rig6dg8q7padcda926emln2sh4h59.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

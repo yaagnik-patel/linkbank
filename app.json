@@ -1,0 +1,53 @@
+{
+  "expo": {
+    "name": "LinkBank",
+    "slug": "LinkBank",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/SKicon.png",
+    "userInterfaceStyle": "light",
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "com.linkbank.app",
+      "googleServicesFile": "./google-services.json", 
+      "edgeToEdgeEnabled": true,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/SKicon.png",
+        "backgroundColor": "#ffffff"
+      }
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "af275aa6-66af-47fb-9f8b-aa0f17f63ac1"
+      }
+    },
+    "owner": "yaaggnik",
+    "plugins": [
+      "expo-notifications",
+      "expo-secure-store",
+      "@react-native-firebase/app",
+      "@react-native-firebase/auth",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "kotlinVersion": "1.9.0"
+          }
+        }
+      ]
+    ]
+  }
+}
