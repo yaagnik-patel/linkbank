@@ -1,5 +1,15 @@
 import { initializeApp, getApps } from "firebase/app";
-import { getAuth } from "firebase/auth";
+import {
+  getAuth,
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut,
+  updateProfile,
+  signInWithPopup,
+  GoogleAuthProvider,
+  deleteUser,
+} from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDVfrdbYMjI8HmaXUJo_DaJ7mUrRcLMge8",
@@ -7,11 +17,21 @@ const firebaseConfig = {
   projectId: "link-bank24",
   storageBucket: "link-bank24.firebasestorage.app",
   messagingSenderId: "323673816247",
-  appId: "1:323673816247:web:XXXX"
+  appId: "1:323673816247:web:46536164f4291eaa41e132",
+  measurementId: "G-KFRG1300RP",
 };
 
-const app = getApps().length === 0
-  ? initializeApp(firebaseConfig)
-  : getApps()[0];
+const app =
+  getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
 
 export const firebaseAuth = getAuth(app);
+export {
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut,
+  updateProfile,
+  signInWithPopup,
+  GoogleAuthProvider,
+  deleteUser,
+};
