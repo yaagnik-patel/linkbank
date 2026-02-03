@@ -145,6 +145,38 @@ During development, you'll see detailed error logs like:
 
 This comprehensive error handling should prevent most crashes and provide clear information about any issues that do occur.
 
+## Gradle Build Issues 🛠️
+
+### Common Gradle Errors:
+- **"Deprecated Gradle features"** - Fixed with compatible versions
+- **"Gradle build failed"** - Memory and compatibility fixes applied
+- **"Build timeout"** - Increased memory allocation and parallel builds
+
+### Fixes Applied:
+1. **Updated Kotlin Version**: `1.9.24` (compatible with Gradle 8.x)
+2. **Specified Gradle Version**: `8.3` (stable version)
+3. **Memory Optimization**: 4GB heap, 512MB metaspace
+4. **Parallel Builds**: Enabled for faster builds
+5. **AndroidX Migration**: Full compatibility
+
+### Build Commands:
+```bash
+# Clear cache and rebuild
+npx eas build --clear-cache --platform android --profile preview
+
+# Build with verbose logs
+npx eas build --platform android --profile preview --verbose
+
+# Alternative: Use production profile
+npx eas build --platform android --profile production
+```
+
+### If Build Still Fails:
+1. **Check EAS dashboard** for detailed error logs
+2. **Verify Android SDK** installation
+3. **Update Node.js** to latest LTS version
+4. **Try local build**: `npx expo build:android --type apk`
+
 ## Support
 
 If issues persist:
@@ -152,3 +184,4 @@ If issues persist:
 2. Verify Firebase project settings
 3. Ensure all environment variables are set correctly
 4. Try building with `--verbose` flag for detailed logs
+5. Check Android Studio SDK Manager for missing components

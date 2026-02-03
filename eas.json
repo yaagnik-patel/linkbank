@@ -14,13 +14,15 @@
     "preview": {
       "distribution": "internal",
       "env": {
-        "npm_config_legacy_peer_deps": "true"
+        "npm_config_legacy_peer_deps": "true",
+        "GRADLE_OPTS": "-Dorg.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=512m"
       },
       "cache": {
         "disabled": false
       },
       "android": {
-        "buildType": "apk"
+        "buildType": "apk",
+        "gradleCommand": ":app:assembleRelease"
       }
     },
     "production": {
