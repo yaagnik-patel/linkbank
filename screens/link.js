@@ -10,11 +10,12 @@ import {
   Linking,
   KeyboardAvoidingView,
   Platform,
-  Clipboard,
+  // Clipboard,  <-- REMOVED THIS (It causes the crash)
   Dimensions,
   ScrollView,
   Image,
 } from "react-native";
+import * as Clipboard from 'expo-clipboard'; // <-- ADDED THIS
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useResponsive } from "@/hooks/useResponsive";
 import DesktopLayout from "@/components/DesktopLayout";
@@ -194,13 +195,14 @@ export default function LinkScreen({ navigation }) {
     }
   };
 
-  const handleCopy = () => {
+  // UPDATED FUNCTION: Uses expo-clipboard correctly
+  const handleCopy = async () => {
     if (selectedLink) {
       if (Platform.OS === "web") {
         navigator.clipboard.writeText(selectedLink.url);
         alert("Link copied to clipboard!");
       } else {
-        Clipboard.setString(selectedLink.url);
+        await Clipboard.setStringAsync(selectedLink.url);
         Alert.alert("Copied", "Link copied to clipboard!");
       }
       setOptionsModalVisible(false);
