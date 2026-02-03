@@ -1,7 +1,11 @@
-import React, { createContext, useState, useContext, useEffect } from "react";
+import React, {
+  createContext,
+  useState,
+  useContext,
+  useEffect,
+  useRef,
+} from "react";
 import { Platform } from "react-native";
-import auth, { GoogleAuthProvider } from "@react-native-firebase/auth";
-import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import { GOOGLE_WEB_CLIENT_ID } from "../../config/googleAuth";
 
 const AuthContext = createContext();
@@ -9,72 +13,121 @@ const AuthContext = createContext();
 // Error logger function
 const logError = (error, context) => {
   console.error(`[AuthContext Error - ${context}]:`, {
-    message: error.message,
-    code: error.code,
-    stack: error.stack,
+    message: error?.message,
+    code: error?.code,
+    stack: error?.stack,
     platform: Platform.OS,
     timestamp: new Date().toISOString(),
   });
 };
 
+// Lazy-load native auth modules only on native (avoids crash at app startup)
+function getNativeAuth() {
+  if (Platform.OS === "web")
+    return { auth: null, GoogleAuthProvider: null, GoogleSignin: null };
+  try {
+    const firebaseAuth = require("@react-native-firebase/auth");
+    const googleSignin = require("@react-native-google-signin/google-signin");
+    return {
+      auth: firebaseAuth.default,
+      GoogleAuthProvider: firebaseAuth.GoogleAuthProvider,
+      GoogleSignin: googleSignin.GoogleSignin,
+    };
+  } catch (e) {
+    logError(e, "Native Auth Module Load");
+    return { auth: null, GoogleAuthProvider: null, GoogleSignin: null };
+  }
+}
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [initializing, setInitializing] = useState(true);
   const [authError, setAuthError] = useState(null);
+  const authRef = useRef(null);
+  const GoogleSigninRef = useRef(null);
+  const GoogleAuthProviderRef = useRef(null);
 
-  // Initialize Google Sign-In and handle user state changes
+  // Defer auth init so native app is fully ready (reduces startup crash risk)
   useEffect(() => {
     let unsubscribe;
+    let cancelled = false;
 
-    const initializeAuth = async () => {
-      try {
-        // Configure Google Sign-In only on native platforms and if available
-        if (Platform.OS !== "web" && GoogleSignin) {
-          try {
-            await GoogleSignin.configure({
-              webClientId: GOOGLE_WEB_CLIENT_ID,
-              offlineAccess: false,
-            });
-            console.log("[AuthContext] Google Sign-In configured successfully");
-          } catch (configError) {
-            logError(configError, "Google Sign-In Configuration");
-            // Don't throw here, just log and continue
+    const initTimer = setTimeout(() => {
+      const initializeAuth = async () => {
+        try {
+          const { auth, GoogleAuthProvider, GoogleSignin } = getNativeAuth();
+
+          if (Platform.OS !== "web") {
+            authRef.current = auth;
+            GoogleSigninRef.current = GoogleSignin;
+            GoogleAuthProviderRef.current = GoogleAuthProvider;
           }
-        } else if (Platform.OS !== "web") {
-          console.log(
-            "[AuthContext] Google Sign-In not available, continuing without it"
-          );
-        }
 
-        unsubscribe = auth().onAuthStateChanged((userState) => {
-          try {
-            setUser(userState);
+          if (Platform.OS === "web") {
             setInitializing(false);
-            setAuthError(null); // Clear any previous errors
-            console.log(
-              "[AuthContext] Auth state changed:",
-              userState ? "User logged in" : "User logged out"
-            );
-          } catch (stateError) {
-            logError(stateError, "Auth State Change");
-            setAuthError("Failed to update authentication state");
+            return;
           }
-        });
-      } catch (initError) {
-        logError(initError, "Auth Initialization");
-        setAuthError("Failed to initialize authentication");
-        setInitializing(false);
-      }
-    };
 
-    initializeAuth();
+          if (!auth) {
+            setAuthError(
+              "Authentication could not be loaded. Please restart the app."
+            );
+            setInitializing(false);
+            return;
+          }
+
+          if (GoogleSignin) {
+            try {
+              await GoogleSignin.configure({
+                webClientId: GOOGLE_WEB_CLIENT_ID,
+                offlineAccess: false,
+              });
+              console.log(
+                "[AuthContext] Google Sign-In configured successfully"
+              );
+            } catch (configError) {
+              logError(configError, "Google Sign-In Configuration");
+            }
+          }
+
+          if (cancelled) return;
+          unsubscribe = auth().onAuthStateChanged((userState) => {
+            try {
+              if (cancelled) return;
+              setUser(userState);
+              setInitializing(false);
+              setAuthError(null);
+              console.log(
+                "[AuthContext] Auth state changed:",
+                userState ? "User logged in" : "User logged out"
+              );
+            } catch (stateError) {
+              logError(stateError, "Auth State Change");
+              setAuthError("Failed to update authentication state");
+            }
+          });
+        } catch (initError) {
+          logError(initError, "Auth Initialization");
+          setAuthError(
+            "Authentication failed to start. Please restart the app."
+          );
+          setInitializing(false);
+        }
+      };
+
+      initializeAuth();
+    }, 200);
 
     return () => {
+      cancelled = true;
+      clearTimeout(initTimer);
       if (typeof unsubscribe === "function") {
         unsubscribe();
       }
     };
   }, []);
+
+  const getAuth = () => authRef.current?.() ?? null;
 
   const login = async (email, password) => {
     try {
@@ -87,7 +140,10 @@ export const AuthProvider = ({ children }) => {
         throw error;
       }
 
-      await auth().signInWithEmailAndPassword(email, password);
+      const authInstance = getAuth();
+      if (!authInstance)
+        throw new Error("Authentication is not ready. Please try again.");
+      await authInstance.signInWithEmailAndPassword(email, password);
       console.log("[AuthContext] Login successful");
     } catch (e) {
       logError(e, "Login");
@@ -101,6 +157,10 @@ export const AuthProvider = ({ children }) => {
       setAuthError(null);
       console.log("[AuthContext] Attempting registration for:", email);
 
+      const authInstance = getAuth();
+      if (!authInstance)
+        throw new Error("Authentication is not ready. Please try again.");
+
       if (!email || !password || !name) {
         const error = new Error("Email, password, and name are required");
         logError(error, "Registration Validation");
@@ -113,7 +173,7 @@ export const AuthProvider = ({ children }) => {
         throw error;
       }
 
-      const userCredential = await auth().createUserWithEmailAndPassword(
+      const userCredential = await authInstance.createUserWithEmailAndPassword(
         email,
         password
       );
@@ -151,9 +211,13 @@ export const AuthProvider = ({ children }) => {
         throw error;
       }
 
-      if (!GoogleSignin) {
+      const GoogleSignin = GoogleSigninRef.current;
+      const GoogleAuthProvider = GoogleAuthProviderRef.current;
+      const authInstance = getAuth();
+
+      if (!GoogleSignin || !authInstance) {
         const error = new Error(
-          "Google Sign-In is not available on this device"
+          "Google Sign-In is not available. Please restart the app."
         );
         logError(error, "Google Sign-In Unavailable");
         throw error;
@@ -187,8 +251,11 @@ export const AuthProvider = ({ children }) => {
         throw error;
       }
 
-      const credential = GoogleAuthProvider.credential(idToken);
-      await auth().signInWithCredential(credential);
+      const credential = GoogleAuthProvider
+        ? GoogleAuthProvider.credential(idToken)
+        : null;
+      if (!credential) throw new Error("Google Sign-In not configured.");
+      await authInstance.signInWithCredential(credential);
       console.log("[AuthContext] Google Sign-In successful");
     } catch (e) {
       logError(e, "Google Sign-In");
@@ -202,16 +269,18 @@ export const AuthProvider = ({ children }) => {
       setAuthError(null);
       console.log("[AuthContext] Attempting logout");
 
+      const authInstance = getAuth();
+      const GoogleSignin = GoogleSigninRef.current;
+
       try {
         if (Platform.OS !== "web" && GoogleSignin) {
           await GoogleSignin.signOut();
         }
       } catch (googleSignOutError) {
         logError(googleSignOutError, "Google Sign-Out");
-        // Continue with Firebase logout even if Google sign-out fails
       }
 
-      await auth().signOut();
+      if (authInstance) await authInstance.signOut();
       console.log("[AuthContext] Logout successful");
     } catch (e) {
       logError(e, "Logout");
@@ -224,7 +293,10 @@ export const AuthProvider = ({ children }) => {
       setAuthError(null);
       console.log("[AuthContext] Attempting account deletion");
 
-      const currentUser = auth().currentUser;
+      const authInstance = getAuth();
+      if (!authInstance)
+        throw new Error("Authentication is not ready. Please try again.");
+      const currentUser = authInstance.currentUser;
       if (!currentUser) {
         const error = new Error("No user is currently signed in");
         logError(error, "Delete Account - No User");
