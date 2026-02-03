@@ -15,7 +15,8 @@
       "distribution": "internal",
       "env": {
         "npm_config_legacy_peer_deps": "true",
-        "GRADLE_OPTS": "-Dorg.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=512m"
+        "GRADLE_OPTS": "-Dorg.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=512m",
+        "KOTLIN_DAEMON_JVM_OPTIONS": "-Xmx2g"
       },
       "cache": {
         "disabled": false
