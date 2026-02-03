@@ -6,19 +6,31 @@ import {
   Animated,
   Dimensions,
   StyleSheet,
+  Platform,
 } from "react-native";
 import { useResponsive } from "@/hooks/useResponsive";
 import DesktopLayout from "@/components/DesktopLayout";
+import { useAuth } from "@/screens/Auth/AuthContext";
 
 const { width: winWidth, height: winHeight } = Dimensions.get("window");
 
 export default function LinkBankHome({ navigation }) {
   const { isLargeScreen } = useResponsive();
+  const { user, initializing } = useAuth();
+
+  // When user is already logged in (e.g. auto-login from previous session), send them to their links
+  useEffect(() => {
+    if (!initializing && user) {
+      navigation.replace("Link");
+    }
+  }, [initializing, user]);
 
   const slideUpAnim = useRef(new Animated.Value(winHeight * 0.3)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const floatAnim = useRef(new Animated.Value(0)).current;
   const bgFloat = useRef(new Animated.Value(0)).current;
+
+  const useNativeDriver = Platform.OS !== "web";
 
   useEffect(() => {
     Animated.parallel([
@@ -26,13 +38,13 @@ export default function LinkBankHome({ navigation }) {
         toValue: 0,
         tension: 20,
         friction: 7,
-        useNativeDriver: true,
+        useNativeDriver,
       }),
       Animated.timing(fadeAnim, {
         toValue: 1,
         duration: 800,
         delay: 300,
-        useNativeDriver: true,
+        useNativeDriver,
       }),
     ]).start();
 
@@ -41,12 +53,12 @@ export default function LinkBankHome({ navigation }) {
         Animated.timing(floatAnim, {
           toValue: -20,
           duration: 2000,
-          useNativeDriver: true,
+          useNativeDriver,
         }),
         Animated.timing(floatAnim, {
           toValue: 0,
           duration: 2000,
-          useNativeDriver: true,
+          useNativeDriver,
         }),
       ])
     ).start();
@@ -56,12 +68,12 @@ export default function LinkBankHome({ navigation }) {
         Animated.timing(bgFloat, {
           toValue: -10,
           duration: 4000,
-          useNativeDriver: true,
+          useNativeDriver,
         }),
         Animated.timing(bgFloat, {
           toValue: 0,
           duration: 4000,
-          useNativeDriver: true,
+          useNativeDriver,
         }),
       ])
     ).start();
@@ -250,11 +262,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 32,
     paddingTop: 40,
     paddingBottom: 48,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 8,
+    ...(Platform.OS === "web"
+      ? { boxShadow: "0 -4px 12px rgba(0,0,0,0.1)" }
+      : {
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: -4 },
+          shadowOpacity: 0.1,
+          shadowRadius: 12,
+          elevation: 8,
+        }),
   },
   title: {
     fontSize: 28,
@@ -328,11 +344,15 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255,255,255,0.7)",
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#7C3AED",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.2,
-    shadowRadius: 24,
-    elevation: 8,
+    ...(Platform.OS === "web"
+      ? { boxShadow: "0 8px 24px rgba(124,58,237,0.2)" }
+      : {
+          shadowColor: "#7C3AED",
+          shadowOffset: { width: 0, height: 8 },
+          shadowOpacity: 0.2,
+          shadowRadius: 24,
+          elevation: 8,
+        }),
   },
   desktopVisualEmoji: { fontSize: 120 },
 });
