@@ -1,15 +1,11 @@
 // Import the functions you need from the SDKs you need
-import { initializeApp, getApps } from "firebase/app";
+import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
-import {
-  getAuth,
-  setPersistence,
-  browserLocalPersistence,
-} from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+// TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
 // Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyDZ3-9WrlT-kpkhyaQ3DYRktwweylqzow0",
   authDomain: "link-bank24.firebaseapp.com",
@@ -20,16 +16,6 @@ const firebaseConfig = {
   measurementId: "G-KFRG1300RP",
 };
 
-// Initialize Firebase (single app instance)
-const app =
-  getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
-const analytics = typeof window !== "undefined" ? getAnalytics(app) : null;
-const auth = getAuth(app);
-const db = getFirestore(app);
-
-// Keep user logged in across browser sessions (auto-login)
-setPersistence(auth, browserLocalPersistence).catch((err) => {
-  console.warn("Auth persistence failed:", err);
-});
-
-export { app, analytics, auth, db };
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);

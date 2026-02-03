@@ -9,7 +9,11 @@ dist/
 web-build/
 expo-env.d.ts
 
-# Native
+# Native (use Prebuild/CNG with EAS – do not commit generated android/ios)
+android/
+ios/
+
+# Native build caches (if you keep native folders)
 .kotlin/
 *.orig.*
 *.jks

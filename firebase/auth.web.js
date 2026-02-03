@@ -17,8 +17,7 @@ const firebaseConfig = {
   projectId: "link-bank24",
   storageBucket: "link-bank24.firebasestorage.app",
   messagingSenderId: "323673816247",
-  appId: "1:323673816247:web:46536164f4291eaa41e132",
-  measurementId: "G-KFRG1300RP",
+  appId: "1:323673816247:web:XXXX",
 };
 
 const app =
