@@ -21,7 +21,7 @@ export default function Signup({ navigation }) {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const { register, signInWithGoogle } = useAuth();
+  const { register, signInWithGoogle, authError, clearError } = useAuth();
   const { isLargeScreen } = useResponsive();
   const floatAnim = useRef(new Animated.Value(0)).current;
 
@@ -42,43 +42,55 @@ export default function Signup({ navigation }) {
     ).start();
   }, []);
 
+  // Show auth error alert when authError changes
+  useEffect(() => {
+    if (authError) {
+      Alert.alert("Authentication Error", authError, [
+        { text: "OK", onPress: clearError }
+      ]);
+    }
+  }, [authError, clearError]);
+
   const handleSignup = async () => {
+    // Clear any previous errors
+    clearError();
+    
     if (!name || !email || !password) {
       Alert.alert("Missing Fields", "Please fill in all fields to continue.");
       return;
     }
+    
     setLoading(true);
     try {
+      console.log('[Signup] Attempting registration for user:', email);
       await register(email, password, name);
+      console.log('[Signup] Registration successful');
       Alert.alert("Account Created! 🚀", `Welcome to LinkIt, ${name}!`, [
         { text: "OK", onPress: () => navigation.replace("Link") },
       ]);
     } catch (error) {
-      let msg = error.message;
-      if (error.code === "auth/email-already-in-use")
-        msg = "That email is already in use!";
-      if (error.code === "auth/invalid-email")
-        msg = "That email address is invalid!";
-      if (error.code === "auth/weak-password")
-        msg = "Password should be at least 6 characters.";
-      Alert.alert("Signup Failed", msg);
+      console.error('[Signup] Registration failed:', error);
+      // Error is already handled by AuthContext, but show fallback
+      Alert.alert("Signup Failed", error.message || "An unexpected error occurred.");
     } finally {
       setLoading(false);
     }
   };
 
   const handleGoogleSignIn = async () => {
+    // Clear any previous errors
+    clearError();
+    
     setLoading(true);
     try {
+      console.log('[Signup] Attempting Google Sign-In');
       await signInWithGoogle();
+      console.log('[Signup] Google Sign-In successful, navigating to Link screen');
       navigation.replace("Link");
     } catch (error) {
-      let msg = error.message;
-      if (error.code === "auth/popup-closed-by-user")
-        msg = "Sign in was cancelled.";
-      if (error.code === "auth/popup-blocked")
-        msg = "Popup was blocked. Please allow popups.";
-      Alert.alert("Google Sign-In Failed", msg);
+      console.error('[Signup] Google Sign-In failed:', error);
+      // Error is already handled by AuthContext, but show fallback
+      Alert.alert("Google Sign-In Failed", error.message || "An unexpected error occurred.");
     } finally {
       setLoading(false);
     }

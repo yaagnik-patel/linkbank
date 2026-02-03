@@ -35,3 +35,13 @@ yarn-error.*
 
 # typescript
 *.tsbuildinfo
+
+# EAS Build
+.eas-build-cache/
+build/
+*.apk
+*.aab
+
+# Temporary files
+*.log
+*.tmp

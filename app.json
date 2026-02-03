@@ -38,12 +38,20 @@
       "expo-secure-store",
       "@react-native-firebase/app",
       "@react-native-firebase/auth",
-      "@react-native-google-signin/google-signin",
+      [
+        "@react-native-google-signin/google-signin",
+        {
+          "iosUrlScheme": "com.googleusercontent.apps.323673816247-uk9rig6dg8q7padcda926emln2sh4h59"
+        }
+      ],
       [
         "expo-build-properties",
         {
           "android": {
-            "kotlinVersion": "2.0.20"
+            "kotlinVersion": "2.0.20",
+            "compileSdkVersion": 34,
+            "targetSdkVersion": 34,
+            "buildToolsVersion": "34.0.0"
           }
         }
       ],
