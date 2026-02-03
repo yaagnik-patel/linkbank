@@ -3,18 +3,29 @@ import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { Platform, View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { errorMonitor, setupGlobalErrorHandlers } from './utils/errorMonitoring';
-import { crashDetector, setupAutoRecovery, getSystemStatus } from './utils/crashDetection';
 
-// Platform-specific AuthContext import
-const AuthProvider = Platform.OS === 'web' 
-  ? require('./screens/Auth/AuthContext.web').AuthProvider 
-  : require('./screens/Auth/AuthContext').AuthProvider;
+// Import AuthContext directly - it handles platform differences internally
+import { AuthProvider } from './screens/Auth/AuthContext';
 
 import Home from './screens/Home';
 import LinkScreen from './screens/link';
 import Login from './screens/Auth/Login';
 import Signup from './screens/Auth/Signup';
+
+// Use simplified error monitoring for better Expo Go compatibility
+let errorMonitor, setupGlobalErrorHandlers, crashDetector, setupAutoRecovery, getSystemStatus;
+
+try {
+  const errorModule = require('./utils/simpleErrorMonitoring');
+  errorMonitor = errorModule.errorMonitor;
+  setupGlobalErrorHandlers = errorModule.setupGlobalErrorHandlers;
+  crashDetector = errorModule.crashDetector;
+  setupAutoRecovery = errorModule.setupAutoRecovery;
+  getSystemStatus = errorModule.getSystemStatus;
+  console.log('[App] Using simplified error monitoring');
+} catch (error) {
+  console.log('[App] Error monitoring not available, continuing without it');
+}
 
 const Stack = createNativeStackNavigator();
 
@@ -31,14 +42,19 @@ class ErrorBoundary extends Component {
   }
 
   componentDidCatch(error, errorInfo) {
-    // Log the error using error monitoring system
-    errorMonitor.logError(error, 'App Error Boundary', {
-      componentStack: errorInfo.componentStack,
-      isFatal: true
-    });
+    // Log the error using error monitoring system if available
+    if (errorMonitor) {
+      errorMonitor.logError(error, 'App Error Boundary', {
+        componentStack: errorInfo.componentStack,
+        isFatal: true
+      });
+    } else {
+      console.error('[App Error Boundary]:', error, errorInfo);
+    }
 
     // Check if we're in a crash state
-    if (crashDetector.isCrashState()) {
+    const isCrashState = crashDetector ? crashDetector.isCrashState() : false;
+    if (isCrashState) {
       console.log('[App Error Boundary] Crash state detected, attempting recovery');
       this.attemptRecovery();
     }
@@ -46,7 +62,7 @@ class ErrorBoundary extends Component {
     this.setState({
       error: error,
       errorInfo: errorInfo,
-      isCrashState: crashDetector.isCrashState()
+      isCrashState
     });
   }
 
@@ -63,6 +79,13 @@ class ErrorBoundary extends Component {
 
   attemptRecovery = async () => {
     console.log('[App Error Boundary] Attempting automatic recovery');
+    
+    if (!crashDetector) {
+      console.log('[App Error Boundary] Crash detection not available, basic retry');
+      this.setState({ isCrashState: false });
+      return true;
+    }
+    
     const recovered = await crashDetector.attemptRecovery();
     
     if (recovered) {
@@ -124,9 +147,11 @@ class ErrorBoundary extends Component {
                 <Text style={styles.debugText}>
                   Crash State: {isCrashState ? 'Yes' : 'No'}
                 </Text>
-                <Text style={styles.debugText}>
-                  System Status: {JSON.stringify(getSystemStatus(), null, 2)}
-                </Text>
+                {getSystemStatus && (
+                  <Text style={styles.debugText}>
+                    System Status: {JSON.stringify(getSystemStatus(), null, 2)}
+                  </Text>
+                )}
               </View>
             )}
             
@@ -164,21 +189,35 @@ function AppContent() {
 }
 
 export default function App() {
-  // Initialize error monitoring and global error handlers
+  // Initialize error monitoring and global error handlers if available
   React.useEffect(() => {
-    console.log('[App] Initializing error monitoring and crash detection systems');
-    setupGlobalErrorHandlers();
-    setupAutoRecovery();
+    console.log('[App] Starting app initialization');
+    
+    if (setupGlobalErrorHandlers) {
+      console.log('[App] Setting up global error handlers');
+      setupGlobalErrorHandlers();
+    }
+    
+    if (setupAutoRecovery) {
+      console.log('[App] Setting up auto-recovery');
+      setupAutoRecovery();
+    }
     
     // Log app initialization
-    errorMonitor.logError(
-      new Error('App initialized successfully'),
-      'App Initialization',
-      { platform: Platform.OS, timestamp: new Date().toISOString() }
-    );
+    if (errorMonitor) {
+      errorMonitor.logError(
+        new Error('App initialized successfully'),
+        'App Initialization',
+        { platform: Platform.OS, timestamp: new Date().toISOString() }
+      );
+    } else {
+      console.log('[App] App initialized successfully (no error monitoring)');
+    }
 
     // Log system status
-    console.log('[App] System status:', getSystemStatus());
+    if (getSystemStatus) {
+      console.log('[App] System status:', getSystemStatus());
+    }
   }, []);
 
   return (

@@ -46,14 +46,20 @@ export default function Signup({ navigation }) {
   useEffect(() => {
     if (authError) {
       Alert.alert("Authentication Error", authError, [
-        { text: "OK", onPress: clearError }
+        { text: "OK", onPress: () => {
+          if (clearError && typeof clearError === 'function') {
+            clearError();
+          }
+        }}
       ]);
     }
   }, [authError, clearError]);
 
   const handleSignup = async () => {
     // Clear any previous errors
-    clearError();
+    if (clearError && typeof clearError === 'function') {
+      clearError();
+    }
     
     if (!name || !email || !password) {
       Alert.alert("Missing Fields", "Please fill in all fields to continue.");
@@ -79,7 +85,9 @@ export default function Signup({ navigation }) {
 
   const handleGoogleSignIn = async () => {
     // Clear any previous errors
-    clearError();
+    if (clearError && typeof clearError === 'function') {
+      clearError();
+    }
     
     setLoading(true);
     try {

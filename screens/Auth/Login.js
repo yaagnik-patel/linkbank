@@ -45,14 +45,20 @@ export default function Login({ navigation }) {
   useEffect(() => {
     if (authError) {
       Alert.alert("Authentication Error", authError, [
-        { text: "OK", onPress: clearError }
+        { text: "OK", onPress: () => {
+          if (clearError && typeof clearError === 'function') {
+            clearError();
+          }
+        }}
       ]);
     }
   }, [authError, clearError]);
 
   const handleLogin = async () => {
     // Clear any previous errors
-    clearError();
+    if (clearError && typeof clearError === 'function') {
+      clearError();
+    }
     
     if (!email || !password) {
       Alert.alert("Missing Fields", "Please enter both email and password.");
@@ -76,7 +82,9 @@ export default function Login({ navigation }) {
 
   const handleGoogleSignIn = async () => {
     // Clear any previous errors
-    clearError();
+    if (clearError && typeof clearError === 'function') {
+      clearError();
+    }
     
     setLoading(true);
     try {

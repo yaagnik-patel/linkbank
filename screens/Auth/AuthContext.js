@@ -26,8 +26,8 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const initializeAuth = async () => {
       try {
-        // Configure Google Sign-In only on native platforms
-        if (Platform.OS !== 'web') {
+        // Configure Google Sign-In only on native platforms and if available
+        if (Platform.OS !== 'web' && GoogleSignin) {
           try {
             await GoogleSignin.configure({
               webClientId: GOOGLE_WEB_CLIENT_ID,
@@ -38,6 +38,8 @@ export const AuthProvider = ({ children }) => {
             logError(configError, 'Google Sign-In Configuration');
             // Don't throw here, just log and continue
           }
+        } else if (Platform.OS !== 'web') {
+          console.log('[AuthContext] Google Sign-In not available, continuing without it');
         }
 
         const subscriber = auth().onAuthStateChanged((userState) => {
@@ -137,6 +139,12 @@ export const AuthProvider = ({ children }) => {
         logError(error, 'Google Sign-In Platform Check');
         throw error;
       }
+
+      if (!GoogleSignin) {
+        const error = new Error("Google Sign-In is not available on this device");
+        logError(error, 'Google Sign-In Unavailable');
+        throw error;
+      }
       
       try {
         await GoogleSignin.hasPlayServices({
@@ -178,7 +186,7 @@ export const AuthProvider = ({ children }) => {
       console.log('[AuthContext] Attempting logout');
       
       try {
-        if (Platform.OS !== 'web') {
+        if (Platform.OS !== 'web' && GoogleSignin) {
           await GoogleSignin.signOut();
         }
       } catch (googleSignOutError) {
@@ -239,8 +247,8 @@ export const AuthProvider = ({ children }) => {
   };
 
   const clearError = () => {
-  setAuthError(null);
-};
+    setAuthError(null);
+  };
 
 return (
     <AuthContext.Provider
