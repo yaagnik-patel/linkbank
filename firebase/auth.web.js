@@ -1,6 +1,6 @@
-// Use the same Firebase app and auth from firebase.js (single config + persistence)
-import { auth } from "../firebase";
+import { initializeApp, getApps } from "firebase/app";
 import {
+  getAuth,
   onAuthStateChanged,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
@@ -11,7 +11,20 @@ import {
   deleteUser,
 } from "firebase/auth";
 
-export const firebaseAuth = auth;
+const firebaseConfig = {
+  apiKey: "AIzaSyDVfrdbYMjI8HmaXUJo_DaJ7mUrRcLMge8",
+  authDomain: "link-bank24.firebaseapp.com",
+  projectId: "link-bank24",
+  storageBucket: "link-bank24.firebasestorage.app",
+  messagingSenderId: "323673816247",
+  appId: "1:323673816247:web:46536164f4291eaa41e132",
+  measurementId: "G-KFRG1300RP",
+};
+
+const app =
+  getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
+
+export const firebaseAuth = getAuth(app);
 export {
   onAuthStateChanged,
   signInWithEmailAndPassword,

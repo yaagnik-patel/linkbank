@@ -3,33 +3,42 @@
 ## Fixed Issues ✅
 
 ### 1. Platform-Specific AuthContext
+
 **Problem**: App was trying to use native Google Sign-In on web builds
-**Solution**: 
+**Solution**:
+
 - Added platform checks in `AuthContext.js`
 - Moved Google Sign-In configuration inside useEffect
 - Created separate `AuthContext.web.js` for web builds
 
 ### 2. Module Resolution
+
 **Problem**: Babel alias causing issues in production builds
 **Solution**:
+
 - Updated `metro.config.js` with proper platform extension resolution
 - Added module alias configuration
 
 ### 3. Plugin Configuration
+
 **Problem**: Google Sign-In plugin not properly configured for builds
 **Solution**:
+
 - Updated `app.json` with proper plugin configuration
 - Added Android build properties (SDK versions, build tools)
 
 ### 4. Build Configuration
+
 **Problem**: EAS build not optimized for caching
 **Solution**:
+
 - Updated `eas.json` with cache settings
 - Added build type specification for Android
 
 ## Build Commands
 
 ### Clean Build
+
 ```bash
 # Clean and rebuild
 npm run clean
@@ -40,11 +49,13 @@ node build.js
 ```
 
 ### Development Build
+
 ```bash
 eas build --platform android --profile development
 ```
 
 ### Production Build
+
 ```bash
 eas build --platform android --profile production
 ```
@@ -52,16 +63,20 @@ eas build --platform android --profile production
 ## Common Issues & Solutions
 
 ### Issue: "Google Sign-In not available"
+
 **Cause**: Platform check missing
 **Solution**: Already fixed with Platform.OS checks
 
 ### Issue: Module resolution errors
+
 **Cause**: Babel/Metro configuration issues
 **Solution**: Metro config updated with platform extensions
 
 ### Issue: Build cache problems
+
 **Cause**: Stale cache
-**Solution**: 
+**Solution**:
+
 ```bash
 eas build --clear-cache
 # or
@@ -69,6 +84,7 @@ npm run clean:cache
 ```
 
 ### Issue: Firebase configuration errors
+
 **Cause**: Missing or incorrect Firebase config
 **Solution**: Ensure `google-services.json` is present and correctly configured
 
@@ -84,6 +100,7 @@ npm run clean:cache
 ## Environment Variables
 
 The build now includes:
+
 - `npm_config_legacy_peer_deps=true` for dependency resolution
 - Proper Android SDK versions (34)
 - Cache optimization enabled
@@ -91,14 +108,18 @@ The build now includes:
 ## Error Handling & Crash Detection 🛡️
 
 ### Comprehensive Error Monitoring
+
 The app now includes:
+
 - **Error Monitoring System**: Tracks all errors with context, timestamps, and platform info
 - **Crash Detection**: Automatically detects when app is in crash state (5+ errors in 1 minute)
 - **Auto-Recovery**: Attempts automatic recovery when crash state is detected
 - **Health Monitoring**: Checks Firebase connectivity, network status, and memory usage
 
 ### Error Logging
+
 All errors are logged with:
+
 - Error message and stack trace
 - Context (where error occurred)
 - Platform information
@@ -106,20 +127,25 @@ All errors are logged with:
 - Additional context data
 
 ### Recovery Strategies
+
 When crash state is detected:
+
 1. Clear error logs
 2. Reset app state (preserves important data)
 3. Clear caches
 4. Attempt to recover automatically
 
 ### Debug Information
+
 In development mode, you'll see:
+
 - Detailed error information
 - Crash state status
 - System status including recent errors
 - Performance metrics
 
 ### Error Categories
+
 - **Authentication Errors**: Firebase auth issues with user-friendly messages
 - **Network Errors**: Connection problems with retry suggestions
 - **Component Errors**: React component failures with stack traces
@@ -136,6 +162,7 @@ In development mode, you'll see:
 ## Error Monitoring in Development
 
 During development, you'll see detailed error logs like:
+
 ```
 [Error Monitor - AuthContext]: {message: "...", stack: "...", platform: "android", timestamp: "..."}
 [Performance] login: 1234ms
@@ -148,11 +175,13 @@ This comprehensive error handling should prevent most crashes and provide clear 
 ## Gradle Build Issues 🛠️
 
 ### Common Gradle Errors:
+
 - **"Deprecated Gradle features"** - Fixed with compatible versions
 - **"Gradle build failed"** - Memory and compatibility fixes applied
 - **"Build timeout"** - Increased memory allocation and parallel builds
 
 ### Fixes Applied:
+
 1. **Updated Kotlin Version**: `1.9.24` (compatible with Gradle 8.x)
 2. **Specified Gradle Version**: `8.3` (stable version)
 3. **Memory Optimization**: 4GB heap, 512MB metaspace
@@ -160,6 +189,7 @@ This comprehensive error handling should prevent most crashes and provide clear 
 5. **AndroidX Migration**: Full compatibility
 
 ### Build Commands:
+
 ```bash
 # Clear cache and rebuild
 npx eas build --clear-cache --platform android --profile preview
@@ -172,14 +202,20 @@ npx eas build --platform android --profile production
 ```
 
 ### If Build Still Fails:
-1. **Check EAS dashboard** for detailed error logs
-2. **Verify Android SDK** installation
-3. **Update Node.js** to latest LTS version
-4. **Try local build**: `npx expo build:android --type apk`
+
+1. **Get the real error**: In EAS dashboard, open the failed build → "Run gradlew" step → expand logs. Or run locally with stacktrace:
+   ```bash
+   cd android && ./gradlew assembleRelease --stacktrace 2>&1 | tee build.log
+   ```
+2. **Clear cache and retry**: `eas build --platform android --profile preview --clear-cache`
+3. **Check EAS dashboard** for the exact failure (OOM, missing SDK, duplicate class, etc.)
+4. **Verify Android SDK** installation (for local builds)
+5. **Update Node.js** to latest LTS version
 
 ## Support
 
 If issues persist:
+
 1. Check EAS build logs for specific error messages
 2. Verify Firebase project settings
 3. Ensure all environment variables are set correctly

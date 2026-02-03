@@ -14,16 +14,13 @@
     "preview": {
       "distribution": "internal",
       "env": {
-        "npm_config_legacy_peer_deps": "true",
-        "GRADLE_OPTS": "-Dorg.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=512m",
-        "KOTLIN_DAEMON_JVM_OPTIONS": "-Xmx2g"
+        "npm_config_legacy_peer_deps": "true"
       },
       "cache": {
         "disabled": false
       },
       "android": {
-        "buildType": "apk",
-        "gradleCommand": ":app:assembleRelease"
+        "buildType": "apk"
       }
     },
     "production": {
