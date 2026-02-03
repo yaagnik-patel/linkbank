@@ -10,7 +10,6 @@ import {
   Linking,
   KeyboardAvoidingView,
   Platform,
-  // Clipboard,  <-- REMOVED THIS (It causes the crash)
   Dimensions,
   ScrollView,
   Image,
